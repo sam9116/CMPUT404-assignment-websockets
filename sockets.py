@@ -29,38 +29,28 @@ app.debug = True
 clients = list()
 
 
-
+#https://github.com/abramhindle/WebSocketsExamples
 def send_all(msg):
-
     for client in clients:
-
         client.put( msg )
         
 
 
-
+#https://github.com/abramhindle/WebSocketsExamples
 def send_all_json(obj):
-
     send_all( json.dumps(obj) )
 
 
-
+#https://github.com/abramhindle/WebSocketsExamples
 class Client:
 
     def __init__(self):
-
         self.queue = queue.Queue()
 
-
-
     def put(self, v):
-
         self.queue.put_nowait(v)
 
-
-
     def get(self):
-
         return self.queue.get()
 
 class World:
@@ -114,11 +104,12 @@ def hello():
 #https://github.com/abramhindle/WebSocketsExamples
 def read_ws(ws,client):
     '''A greenlet function that reads from the websocket and updates the world'''
+    #https://github.com/abramhindle/WebSocketsExamples
     try:
         while True:
             msg = ws.receive()
             #print "WS RECV: %s" % msg
-
+            #sends the whole world, since this is the codeword index.html uses to retreive everything from the start
             if (str(msg) == "bravenewworld"):
                 send_all_json(myWorld.world())
                 continue
@@ -131,7 +122,7 @@ def read_ws(ws,client):
                     print (setexception)
 
                 if('flag' in packet):
-                    print("we caught the flag")
+                    #print("we caught the flag")
                     send_all_json(myWorld.world())
                 else:
                     send_all_json( packet )
@@ -140,7 +131,7 @@ def read_ws(ws,client):
     except:
         '''Done'''
 
-        
+
 @sockets.route('/subscribe')
 def subscribe_socket(ws):
     #https://github.com/abramhindle/WebSocketsExamples

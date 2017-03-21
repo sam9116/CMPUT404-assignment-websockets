@@ -52,8 +52,12 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
+The only code referenced in this assignment is the websocket chat program #https://github.com/abramhindle/WebSocketsExamples demonstrated in class
+Visuals for the dot drawing were taken from the previous assignment
+
 Contributors
 ============
 
 * Mark Galloway
 * Abram Hindle
+* Sam Bao
