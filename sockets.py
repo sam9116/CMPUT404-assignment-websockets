@@ -118,59 +118,47 @@ def read_ws(ws,client):
         while True:
             msg = ws.receive()
             #print "WS RECV: %s" % msg
+
             if (str(msg) == "bravenewworld"):
                 send_all_json(myWorld.world())
                 continue
-            
+
             if (msg is not None):
                 packet = json.loads(msg)
-                #updates world
-                
-                myWorld.set(packet['count'],packet['coordinates'])
-                
-                send_all_json(myWorld.world())
+                try:
+                    myWorld.set(packet['count'],packet['coordinates'])
+                except Exception as setexception:
+                    print (setexception)
+
+                if('flag' in packet):
+                    print("we caught the flag")
+                    send_all_json(myWorld.world())
+                else:
+                    send_all_json( packet )
             else:
                 break
     except:
         '''Done'''
+
         
 @sockets.route('/subscribe')
 def subscribe_socket(ws):
     #https://github.com/abramhindle/WebSocketsExamples
     '''Fufill the websocket URL of /subscribe, every update notify the
        websocket and read updates from the websocket '''
-    #print("new subscriber")
     client = Client()
-
     clients.append(client)
-
     g = gevent.spawn( read_ws, ws, client )    
-
     try:
-
         while True:
-
             # block here
-
             msg = client.get()
-            #msg = ws.receive()
-            #print(msg)
-
-            
-
-            #print "WS SUB: %s" % msg       
-            if (msg is not None):
-               #print(type((msg_processed)))
-                   ws.send(msg)
-                   #print("sending")
+            #print("got message from client "+msg)
+            ws.send(msg)
     except Exception as e:# WebSocketError as e:
-
         print "WS Error %s" % e
-
     finally:
-
         clients.remove(client)
-
         gevent.kill(g)
 
 
