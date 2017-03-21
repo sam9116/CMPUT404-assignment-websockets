@@ -112,23 +112,23 @@ def hello():
 def read_ws(ws,client):
     '''A greenlet function that reads from the websocket and updates the world'''
 
+    print('read_ws called')
     try:
 
         while True:
-
-            msg = ws.receive()
+           
+            msg = client.get()
 
             print "WS RECV: %s" % msg
 
- 
             if (msg is not None):
 
                 packet = json.loads(msg)
 
-                #send_all_json( packet )
+                send_all_json(packet)
 
             else:
-
+                print("breaking")
                 break
 
     except:
@@ -151,9 +151,29 @@ def subscribe_socket(ws):
 
             # block here
 
-            msg = client.get()
+            #msg = client.get()
+            msg = ws.receive()
+            #print(msg)
 
-            print "WS SUB: %s" % msg
+            msg_processed = str(msg)
+            #print "WS SUB: %s" % msg_processed            
+            if (msg_processed is not None):
+                #print(type((msg_processed)))
+                try:
+                    object_processed = json.loads(msg_processed)
+                    myWorld.set(object_processed['count'],object_processed['coordinates'])
+                    ws.send( json.dumps(myWorld.world()))
+                    print("sending")
+                except Exception as parse_error:
+                    print(parse_error)
+                    pass
+
+               
+               
+
+            
+           
+            
             
             #ws.send(msg)
 
