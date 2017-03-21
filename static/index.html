@@ -5,7 +5,19 @@
     <meta charset="utf-8" />
     <meta content='width=device-width; height=device-height; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;' name='viewport' />
     <meta name="viewport" content="width=device-width" />
+    <meta name="license" content="
+          Copyright 2013 Abram Hindle
+          Licensed under the Apache License, Version 2.0 (the "License" );
+          you may not use this file except in compliance with the License.
+          You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
 
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+    "/>
     <script src="json2.js"></script>
 </head>
 <body bgcolor="white" height="100%" width="100%">
@@ -108,10 +120,11 @@
 
         function addEntity(entity, data) {
             world[entity] = data;
+            update_socket({ count: entity, coordinates: data });
             drawNextFrame(); // (but should we?)
             //XXX: Send a XHTML Request that updates the entity you just modified!
 
-            update_socket({count:entity,coordinates:data});
+
 
 
         }
@@ -242,7 +255,7 @@
         function newworld(data) {
             world = {};
             world = data;
-    
+
         }
 
         function wsSetup() {
@@ -251,16 +264,19 @@
             socket.onopen = function () {
                 //XXX: TODO What are you going to do here?
                 //ask for the current world
-                socket.send("bravenewworld");
+
             };
             socket.onerror = function (msg) {
                 debug("WebSocket Error:" + msg.data);
             };
             socket.onmessage = function (msg) {
                 try {
-                    //debug("WebSocket Recv:" + JSON.parse(msg.data));
+                    
+                    debug("WebSocket Recv:" + JSON.parse(msg.data));
                     //XXX: TODO What are you going to do here?
                     newworld(JSON.parse(msg.data));
+                    drawNextFrame();
+                    drawFrame();
                 } catch (e) {
                     alert("socket on message: " + e);
                 }
@@ -278,13 +294,15 @@
             world = data;
 
         }
+        function drawnew(data) {
+            drawCircle(context, data);
+        }
 
 
 
         wsSetup();
 
-        function update_socket(dot)
-        {
+        function update_socket(dot) {
             socket.send(JSON.stringify(dot));
         }
 

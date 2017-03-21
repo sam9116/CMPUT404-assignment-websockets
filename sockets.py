@@ -111,28 +111,18 @@ def hello():
 
 def read_ws(ws,client):
     '''A greenlet function that reads from the websocket and updates the world'''
-
-    print('read_ws called')
     try:
-
         while True:
-           
-            msg = client.get()
-
+            msg = ws.receive()
             print "WS RECV: %s" % msg
-
             if (msg is not None):
-
                 packet = json.loads(msg)
-
-                send_all_json(packet)
-
+                #updates world
+                myWorld.set(packet['count'],packet['coordinates'])
+                send_all_json(myWorld.world())
             else:
-                print("breaking")
                 break
-
     except:
-
         '''Done'''
 @sockets.route('/subscribe')
 def subscribe_socket(ws):
@@ -151,32 +141,17 @@ def subscribe_socket(ws):
 
             # block here
 
-            #msg = client.get()
-            msg = ws.receive()
+            msg = client.get()
+            #msg = ws.receive()
             #print(msg)
 
-            msg_processed = str(msg)
-            #print "WS SUB: %s" % msg_processed            
-            if (msg_processed is not None):
-                #print(type((msg_processed)))
-                try:
-                    object_processed = json.loads(msg_processed)
-                    myWorld.set(object_processed['count'],object_processed['coordinates'])
-                    ws.send( json.dumps(myWorld.world()))
-                    print("sending")
-                except Exception as parse_error:
-                    print(parse_error)
-                    pass
-
-               
-               
-
             
-           
-            
-            
-            #ws.send(msg)
 
+            #print "WS SUB: %s" % msg       
+            if (msg is not None):
+               #print(type((msg_processed)))
+                   ws.send(msg)
+                   print("sending")
     except Exception as e:# WebSocketError as e:
 
         print "WS Error %s" % e
