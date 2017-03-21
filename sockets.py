@@ -109,26 +109,37 @@ def hello():
     
     return redirect("/static/index.html")
 
+
+
+#https://github.com/abramhindle/WebSocketsExamples
 def read_ws(ws,client):
     '''A greenlet function that reads from the websocket and updates the world'''
     try:
         while True:
             msg = ws.receive()
-            print "WS RECV: %s" % msg
+            #print "WS RECV: %s" % msg
+            if (str(msg) == "bravenewworld"):
+                send_all_json(myWorld.world())
+                continue
+            
             if (msg is not None):
                 packet = json.loads(msg)
                 #updates world
+                
                 myWorld.set(packet['count'],packet['coordinates'])
+                
                 send_all_json(myWorld.world())
             else:
                 break
     except:
         '''Done'''
+        
 @sockets.route('/subscribe')
 def subscribe_socket(ws):
+    #https://github.com/abramhindle/WebSocketsExamples
     '''Fufill the websocket URL of /subscribe, every update notify the
        websocket and read updates from the websocket '''
-    print("new subscriber")
+    #print("new subscriber")
     client = Client()
 
     clients.append(client)
@@ -151,7 +162,7 @@ def subscribe_socket(ws):
             if (msg is not None):
                #print(type((msg_processed)))
                    ws.send(msg)
-                   print("sending")
+                   #print("sending")
     except Exception as e:# WebSocketError as e:
 
         print "WS Error %s" % e

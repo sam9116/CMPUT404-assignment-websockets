@@ -48,11 +48,13 @@
                 lineWidth = 3;
                 var x = entity["x"];
                 var y = entity["y"];
-                //moveTo(x,y);
+
+                moveTo(x, y);
                 fillStyle = entity["colour"];
                 strokeStyle = fillStyle;
                 arc(x, y, (entity["radius"]) ? entity["radius"] : 50, 0, 2.0 * Math.PI, false);
-                stroke();
+                fill();
+
             }
         }
 
@@ -233,17 +235,25 @@
         // Add the application specific mouse listeners!
         //XXX: TODO Make these prettier!
         mouse.mousedowners.push(function (x, y, clicked, e) {
-            addEntityWithoutName({ 'x': x, 'y': y, 'colour': 'blue' });
+            addEntityWithoutName({
+                'x': x, 'y': y, 'colour': 'cyan',
+                'radius': 10 * (1 + Math.random())
+            });
         });
 
         mouse.mouseuppers.push(function (x, y, clicked, e) {
-            addEntityWithoutName({ 'x': x, 'y': y, 'colour': 'red' });
+            addEntityWithoutName({
+                'x': x, 'y': y, 'colour': 'pink',
+                'radius': 10 * (1 + Math.random())
+            });
         });
 
         mouse.mousedraggers.push(function (x, y, clicked, e) {
             addEntityWithoutName({
-                'x': x, 'y': y, 'colour': 'green',
-                'radius': 10
+                //writen by Peter Olson (http://stackoverflow.com/users/546661/peter-olson) on
+                //http://stackoverflow.com/questions/9730966/how-to-decide-between-two-numbers-randomly-using-javascript
+                'x': x, 'y': y, 'colour': Math.random() < 0.5 ? 'limegreen' : 'lawngreen',
+                'radius': 10 * (1 + Math.random())
             });
         });
 
@@ -263,8 +273,17 @@
             socket = new WebSocket(url);
             socket.onopen = function () {
                 //XXX: TODO What are you going to do here?
-                //ask for the current world
+                //since I learned from the painful experience that you can only have one socket.send per socket,otherwise ws_read will only catch one incoming message and refuse to read anything after that
+                //a second websocket is necessary to obtain initialworld
 
+                msocket = new WebSocket(url);
+                msocket.onopen=function()
+                {
+                    //ask for the current world
+                    msocket.send("bravenewworld");
+                    //close msocket for better performance
+                    msocket.close();
+                }
             };
             socket.onerror = function (msg) {
                 debug("WebSocket Error:" + msg.data);
@@ -272,7 +291,7 @@
             socket.onmessage = function (msg) {
                 try {
                     
-                    debug("WebSocket Recv:" + JSON.parse(msg.data));
+                    //debug("WebSocket Recv:" + JSON.parse(msg.data));
                     //XXX: TODO What are you going to do here?
                     newworld(JSON.parse(msg.data));
                     drawNextFrame();
